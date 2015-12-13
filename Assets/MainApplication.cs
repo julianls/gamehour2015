@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class MainApplication : MonoBehaviour {
 
@@ -15,20 +16,60 @@ public class MainApplication : MonoBehaviour {
     public GameObject Cube7;
     public GameObject Cube8;
     public GameObject Cube9;
+    public GameObject DisplayText;
+    public GameObject WonText;
 
-    public GameObject activeCube;
-    public string currentText;
+    private string[] texts = { "LOVE", "HATE", "UNIVERSE", "GAMEHOUR" };
 
+    private static System.Random random = new System.Random();
+
+    private string validText;
+    private string currentText;
+    private GameObject activeCube;
+    private GameObject lastGateEntered;
     private bool isRotating;
     private float initialRotation;
     private float currentRotation;
+    private System.Collections.Generic.List<PathItem> fullPath;
+    private List<TextMesh> gateTexts;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start ()
+    {
+        fullPath = new System.Collections.Generic.List<PathItem>();
+        validText = texts[random.Next(0, 3)];
+        currentText = "";
+
+        gateTexts = new List<TextMesh>();
+        AppendTextMeshes(gateTexts, "Gate1");
+        AppendTextMeshes(gateTexts, "Gate2");
+        AppendTextMeshes(gateTexts, "Gate3");
+        AppendTextMeshes(gateTexts, "Gate4");
+
+        int start = 65;
+        int end = 90;
+        foreach (var item in gateTexts)
+        {
+            item.text = ((char)random.Next(start, end)).ToString();
+        }
+
+        WonText.SetActive(false);
+        DisplayText.GetComponent<UnityEngine.UI.Text>().text = currentText;
+        Debug.Log(validText);
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    private static void AppendTextMeshes(List<TextMesh> gateTexts, string tag)
+    {
+        foreach (var item in GameObject.FindGameObjectsWithTag(tag))
+        {
+            TextMesh textMesh = item.GetComponent<TextMesh>();
+            if (textMesh != null)
+                gateTexts.Add(textMesh);
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
 	    if(isRotating)
         {
             BeforeRotateCurrentCube();
@@ -64,6 +105,16 @@ public class MainApplication : MonoBehaviour {
             RotateCurrentCube();
             initialRotation = 0f;
         }
+
+        foreach (TextMesh textMesh in gateTexts)
+        {
+            int start = 65;
+            int end = 90;
+            if(textMesh.transform.parent.gameObject == activeCube)
+            {
+                textMesh.text = ((char)random.Next(start, end)).ToString();
+            }
+        }
     }
 
     private void BeforeRotateCurrentCube()
@@ -84,8 +135,42 @@ public class MainApplication : MonoBehaviour {
         }
     }
 
-    internal void SetActiveCube(GameObject gameObject)
+    internal void SetActiveCube(GameObject newActiveCube)
     {
-        activeCube = gameObject;
+        activeCube = newActiveCube;
+    }
+
+    internal void SetGateEntered(GameObject gateLabel)
+    {
+        if (lastGateEntered != null)
+        {
+            lastGateEntered = null;
+            return;
+        }
+
+        lastGateEntered = gateLabel;
+        string cubeName = gateLabel.transform.parent.gameObject.name;
+        string gateName = gateLabel.name;
+        string gateText = gateLabel.GetComponent<TextMesh>().text;
+        PathItem pathItem = new PathItem(cubeName, gateName, gateText);
+        fullPath.Add(pathItem);
+
+        if (currentText.Length < validText.Length &&
+            pathItem.GateText == validText[currentText.Length].ToString())
+        {
+            currentText += pathItem.GateText;
+            DisplayText.GetComponent<UnityEngine.UI.Text>().text = currentText;
+
+            if(currentText == validText)
+            {
+                SetYouWin();
+            }
+        }
+    }
+
+    private void SetYouWin()
+    {
+        WonText.SetActive(true);
+        Debug.Log("YUO WIN");
     }
 }

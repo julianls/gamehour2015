@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class RestartAction : MonoBehaviour {
+public class CommonAction : MonoBehaviour {
 
     public void OnRestartClick()
     {
