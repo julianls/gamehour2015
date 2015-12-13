@@ -19,7 +19,8 @@ public class MainApplication : MonoBehaviour {
     public GameObject DisplayText;
     public GameObject WonText;
 
-    private string[] texts = { "LOVE", "HATE", "UNIVERSE", "GAMEHOUR" };
+    private string[] texts = { "LOVE", "TOGETHER", "UNIVERSE", "UNITY", "CARE", "HUG", "KISS", "BEAUTY", "WARMTH"};
+    private string[] hints = { "LOVE HINT", "TOGETHER HINT", "UNIVERSE HINT", "GAME ENGINE", "CARE HINT", "HUG HINT", "KISS HINT", "BEAUTY HINT", "WARMTH HINT" };
 
     private static System.Random random = new System.Random();
 
@@ -37,7 +38,8 @@ public class MainApplication : MonoBehaviour {
     void Start ()
     {
         fullPath = new System.Collections.Generic.List<PathItem>();
-        validText = texts[random.Next(0, 3)];
+        int randomTextIndex = random.Next(0, texts.Length);
+        validText = texts[randomTextIndex];
         currentText = "";
 
         gateTexts = new List<TextMesh>();
@@ -54,7 +56,7 @@ public class MainApplication : MonoBehaviour {
         }
 
         WonText.SetActive(false);
-        DisplayText.GetComponent<UnityEngine.UI.Text>().text = currentText;
+        DisplayText.GetComponent<UnityEngine.UI.Text>().text = hints[randomTextIndex];
         Debug.Log(validText);
     }
 
